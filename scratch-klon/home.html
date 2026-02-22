@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WorkHud - Home</title>
-  <link rel="stylesheet" href="retro-style.css">
+  <link rel="stylesheet" href="./retro-style.css">
   <style>
     body {
       background: #fff !important;
@@ -39,7 +39,7 @@
     <input id="searchInput" type="text" placeholder="" style="font-family:'VT323', 'Press Start 2P', monospace; font-size:1.2em; padding:6px 14px; border:2px solid #ffb300; border-radius:6px; background:#e0e0e0; color:#222; margin-bottom:18px; width:320px; display:block;">
     <div id="gamesList" style="margin-top:16px;"></div>
   </div>
-  <script src="lang.js"></script>
+  <script src="./lang.js"></script>
   <script>
     // Språkhantering
     const langStrings = window.workhudLangStrings;
@@ -98,9 +98,9 @@
           // Använd spelets bakgrundsfärg om den finns, annars standard
           let bgColor = game.bgColor || '#ffe082';
           div.style = `background:${bgColor}; border:2px solid #ffb300; border-radius:6px; padding:10px 18px; margin-bottom:10px; font-size:1.1em;`;
-          let btns = `<button style='margin-left:16px; background:#4caf50; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="viewer.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].test}</button>`;
+          let btns = `<button style='margin-left:16px; background:#4caf50; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="./viewer.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].test}</button>`;
           if (game.author && myAuthor && game.author.trim().toLowerCase() === myAuthor.trim().toLowerCase()) {
-            btns += `<button style='margin-left:8px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="index.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].edit}</button>`;
+            btns += `<button style='margin-left:8px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="./index.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].edit}</button>`;
           }
         
           // Likes/dislikes/comments
@@ -167,7 +167,7 @@
       }
     };
     document.getElementById('createBtn').onclick = function() {
-      window.location = 'index.html';
+      window.location = './index.html';
     };
     document.getElementById('searchInput').oninput = function() { renderGames(); };
     // Retro-stil på body och knappar
