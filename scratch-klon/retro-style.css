@@ -1,0 +1,98 @@
+body {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    background: #222;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 10px,
+        #fff 12px,
+        transparent 14px
+    );
+}
+#header {
+    background: #3399ff;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 2em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border-bottom: 4px solid #005fa3;
+}
+#main {
+    display: flex;
+    height: 90vh;
+    position: relative;
+    z-index: 1;
+}
+#test-panel {
+    background: #222;
+    border-right: 3px solid #fff;
+    min-width: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#stage {
+    background: #222;
+    border: 3px solid #3399ff;
+    border-radius: 10px;
+    width: 320px;
+    height: 240px;
+    margin: 20px;
+    position: relative;
+}
+#sprite {
+    position: absolute;
+    left: 140px;
+    top: 100px;
+    width: 40px;
+    height: 40px;
+}
+#program-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #222;
+}
+#block-palette {
+    background: #222;
+    padding: 10px;
+    border-bottom: 2px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.block {
+    background: #cce0ff;
+    border: 2px solid #3399ff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 1em;
+    box-shadow: 2px 2px 0 #005fa3;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+#workspace {
+    min-height: 200px;
+    background: #e0e0ff;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #888;
+}

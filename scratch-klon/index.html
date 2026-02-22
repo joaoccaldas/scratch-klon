@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkHud</title>
+    <link rel="stylesheet" href="retro-style.css">
+</head>
+<body>
+    <div id="header">WorkHud</div>
+    <div style="display:flex; gap:8px; margin:12px 0 8px 16px; align-items:center;">
+      <button id="saveProjectBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:4px 12px; font-family:inherit; font-size:1em; cursor:pointer;">Spara projekt</button>
+      <label for="loadProjectInput" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:4px 12px; font-family:inherit; font-size:1em; cursor:pointer;">Ladda projekt
+        <input type="file" id="loadProjectInput" accept="application/json" style="display:none;">
+      </label>
+    </div>
+    <div style="margin-left:16px; margin-bottom:8px; display:flex; align-items:center; gap:12px;">
+      <button id="loadGameBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:4px 12px; font-family:inherit; font-size:1em; cursor:pointer;">LoadGame</button>
+      <button id="publishGameBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:4px 12px; font-family:inherit; font-size:1em; cursor:pointer; margin-left:8px;">Publicera spel</button>
+      <button id="homeBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:4px 12px; font-family:inherit; font-size:1em; cursor:pointer; margin-left:8px;">Home</button>
+    </div>
+    <div id="main" style="display:flex; flex-direction:row; height:100vh;">
+        <div id="test-panel" style="width:340px; background:#222; border-right:3px solid #fff; position:relative; display:flex; flex-direction:column; align-items:center;">
+            <div id="stage" style="background:#222; position:relative; width:320px; height:240px; margin-top:16px;">
+                <img id="sprite" src="cat.png" alt="Katt">
+                <button id="resetBtn" style="position:absolute; left:10px; bottom:10px; background:#1976d2; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:1em; cursor:pointer;">&rarr;</button>
+                <div id="listPanel" style="position:absolute; right:10px; top:10px; min-width:80px; background:#e3f2fd; border:2px solid #1976d2; border-radius:8px; padding:8px 12px; font-family:monospace; font-size:1em; color:#222; z-index:3; display:none;"></div>
+            </div>
+            <div style="display:flex; gap:10px; margin:16px 0 0 0; justify-content:center;">
+                <button id="runBtn" style="background:#4caf50; border:none; border-radius:50%; width:40px; height:40px; font-size:1.5em; color:#fff; cursor:pointer;" onclick="runBlocks()">▶</button>
+                <button id="stopBtn" style="background:#f44336; border:none; border-radius:8px; width:40px; height:40px; font-size:1.5em; color:#fff; cursor:pointer;" onclick="stopBlocks()">■</button>
+            </div>
+        </div>
+        <div id="program-panel" style="flex:1; display:flex; flex-direction:row; background:#222; min-width:0;">
+            <div id="workspace" ondrop="drop(event)" ondragover="allowDrop(event)" style="flex:1; min-height:100vh; max-height:100vh; overflow-y:auto; background:repeating-linear-gradient(to bottom, #111 0px, #111 38px, #333 38px, #333 40px); border-radius:0; box-shadow:none; margin:0; padding:24px 0 24px 0; border-left:3px solid #fff; border-right:3px solid #fff; position:relative;">
+                <!-- Block kommer hit -->
+            </div>
+            <div id="block-palette" style="width:220px; min-width:180px; max-width:240px; margin:16px 0 16px 8px;">
+                <div class="block" draggable="true" data-type="move" style="background:#b39ddb; border-color:#7c4dff;" id="block-move">move 10 steps</div>
+                <div class="block" draggable="true" data-type="turnR" style="background:#b39ddb; border-color:#7c4dff;" id="block-turnR">turn ↻ 15 degrees</div>
+                <div class="block" draggable="true" data-type="turnL" style="background:#b39ddb; border-color:#7c4dff;" id="block-turnL">turn ↺ 15 degrees</div>
+                <div class="block" draggable="true" data-type="goto" style="background:#b39ddb; border-color:#7c4dff;" id="block-goto">go to random position</div>
+                <div class="block" draggable="true" data-type="say" style="background:#ffd54f; border-color:#ffb300;" id="block-say">say "Hello!" for <input type="number" min="0.1" step="0.1" value="2" style="width:40px;"> seconds</div>
+                <div class="block" draggable="true" data-type="wait" style="background:#ffd54f; border-color:#ffb300;" id="block-wait">wait <input type="number" min="0.1" step="0.1" value="1" style="width:40px;"> seconds</div>
+                <div class="block" draggable="true" data-type="repeat" style="background:#90caf9; border-color:#1976d2; position:relative;" id="block-repeat">repeat <input type="number" min="1" value="10" style="width:40px;"> times</div>
+                <div class="block" draggable="true" data-type="if" style="background:#90caf9; border-color:#1976d2; position:relative;" id="block-if">if <input type="text" value="condition" style="width:60px;"> then</div>
+                <div class="block" draggable="true" data-type="end" style="background:#90caf9; border-color:#1976d2;" id="block-end">end</div>
+                <div class="block" draggable="true" data-type="ask" style="background:#f06292; border-color:#ad1457;" id="block-ask">ask <input type="text" value="What&#39;s your name?" style="width:80px;"> and wait</div>
+                <div class="block" draggable="true" data-type="answer" style="background:#f06292; border-color:#ad1457;" id="block-answer">answer</div>
+                <div class="block" draggable="true" data-type="list" style="background:#f06292; border-color:#ad1457;" id="block-list">create list <input type="text" value="myList" style="width:60px;"></div>
+                <div class="block" draggable="true" data-type="addtolist" style="background:#f06292; border-color:#ad1457;" id="block-addtolist">add <input type="text" value="" style="width:60px;"> to list <input type="text" value="myList" style="width:60px;"></div>
+                <div class="block" draggable="true" data-type="gamekey" style="background:#ffb6b6; border-color:#d32f2f;" id="block-gamekey">when key <select style='width:70px;'><option value="ArrowUp">up arrow</option><option value="ArrowDown">down arrow</option><option value="ArrowLeft">left arrow</option><option value="ArrowRight">right arrow</option><option value=" ">space</option><option value="a">A</option><option value="s">S</option><option value="d">D</option><option value="w">W</option></select> pressed</div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+// Språkhantering för studion
+const langStrings = {
+  sv: {
+    save: 'Spara projekt',
+    load: 'Ladda projekt',
+    loadGame: 'LoadGame',
+    publish: 'Publicera spel',
+    run: '▶',
+    stop: '■',
+    askName: 'Vad ska spelet heta?',
+    askAuthor: 'Vad heter du? (Författare)',
+    published: 'Spelet är nu publicerat och syns för alla på startsidan!',
+    loaded: 'Spelet laddat!',
+    notFound: 'Spelet hittades inte!',
+    open: 'Öppna',
+    back: 'Tillbaka',
+    promptLoad: 'Vad heter spelet du vill ladda?'
+  },
+  en: {
+    save: 'Save project',
+    load: 'Load project',
+    loadGame: 'LoadGame',
+    publish: 'Publish game',
+    run: '▶',
+    stop: '■',
+    askName: 'What is the game name?',
+    askAuthor: 'What is your name? (Author)',
+    published: 'Game is now published and visible for everyone on the home page!',
+    loaded: 'Game loaded!',
+    notFound: 'Game not found!',
+    open: 'Open',
+    back: 'Back',
+    promptLoad: 'What is the name of the game you want to load?'
+  }
+};
+let currentLang = localStorage.getItem('workhud_lang') || 'sv';
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('workhud_lang', lang);
+  document.getElementById('saveProjectBtn').textContent = langStrings[lang].save;
+  document.querySelector('label[for="loadProjectInput"]').childNodes[0].textContent = langStrings[lang].load + '\n';
+  document.getElementById('loadGameBtn').textContent = langStrings[lang].loadGame;
+  document.getElementById('publishGameBtn').textContent = langStrings[lang].publish;
+  document.getElementById('runBtn').textContent = langStrings[lang].run;
+  document.getElementById('stopBtn').textContent = langStrings[lang].stop;
+}
+
+document.getElementById('homeBtn').onclick = function() {
+    window.location = 'home.html';
+};
+
+window.addEventListener('DOMContentLoaded', function() {
+});
+</script>
+</body>
+</html>

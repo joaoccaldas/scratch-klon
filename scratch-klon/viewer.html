@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkHud - Spelvisare</title>
+  <link rel="stylesheet" href="retro-style.css">
+  <style>
+    body { background: #fff; margin: 0; padding: 0; }
+    #header { background: #1976d2; color: #fff; padding: 12px 24px; font-size: 1.5em; }
+    #stage { background:#222; position:relative; width:320px; height:240px; margin:32px auto 0 auto; border-radius:12px; box-shadow:0 2px 12px #bbb; }
+    #runBtn, #stopBtn { margin: 24px 8px 0 8px; }
+    #listPanel { position:absolute; right:10px; top:10px; min-width:80px; background:#ffe082; border:2px solid #ffb300; border-radius:8px; padding:8px 12px; font-family:monospace; font-size:1em; color:#222; z-index:3; display:none; }
+  </style>
+</head>
+<body>
+  <div id="header">WorkHud Spelvisare</div>
+  <div id="stage">
+    <img id="sprite" src="cat.png" alt="Katt">
+    <div id="listPanel"></div>
+  </div>
+  <div style="text-align:center;">
+    <button id="runBtn" style="background:#4caf50; border:none; border-radius:50%; width:40px; height:40px; font-size:1.5em; color:#fff; cursor:pointer;">▶</button>
+    <button id="stopBtn" style="background:#f44336; border:none; border-radius:8px; width:40px; height:40px; font-size:1.5em; color:#fff; cursor:pointer;">■</button>
+  </div>
+  <div id="blocksView" style="display:none;"></div>
+  <script src="viewer.js"></script>
+  <script src="lang.js"></script>
+  <script>
+    // Språkhantering för viewer
+    const langStrings = window.workhudLangStrings;
+    let currentLang = localStorage.getItem('workhud_lang') || 'sv';
+    // Lägg till språk-väljare
+    function addLangSelector() {
+      if (!document.getElementById('langSelect')) {
+        const langSel = document.createElement('select');
+        langSel.id = 'langSelect';
+        langSel.style = 'float:right; margin-top:-8px; background:#fff; color:#1976d2; border-radius:5px; border:1.5px solid #fff; font-size:1em; padding:3px 8px; margin-left:8px;';
+        langSel.innerHTML = '<option value="sv">Svenska</option><option value="en">English</option>';
+        langSel.value = currentLang;
+        document.getElementById('header').appendChild(langSel);
+        langSel.onchange = function() { setLang(this.value); };
+      }
+    }
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('workhud_lang', lang);
+      document.getElementById('header').childNodes[0].textContent = 'WorkHud ' + langStrings[lang].test;
+      document.getElementById('runBtn').textContent = langStrings[lang].run;
+      document.getElementById('stopBtn').textContent = langStrings[lang].stop;
+      document.getElementById('backBtn').textContent = langStrings[lang].back;
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+      addLangSelector();
+      // Lägg till id på tillbaka-knappen
+      const backBtn = document.createElement('button');
+      backBtn.id = 'backBtn';
+      backBtn.style = 'background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:6px 18px; font-size:1em; cursor:pointer; margin-left:16px;';
+      backBtn.onclick = function() { window.location = 'home.html'; };
+      document.querySelector('div[style*="text-align:center;"]').appendChild(backBtn);
+      setLang(currentLang);
+    });
+  </script>
+</body>
+</html>

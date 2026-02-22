@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkHud - Home</title>
+  <link rel="stylesheet" href="retro-style.css">
+  <style>
+    body {
+      background: #fff !important;
+      margin: 0;
+      padding: 0;
+    }
+    #header {
+      background: #1976d2 !important;
+      color: #fff;
+      box-shadow: 0 2px 0 #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div id="header" style="display:flex; align-items:center; justify-content:space-between; background:#1976d2; color:#fff; padding:12px 24px; font-size:1.5em;">
+    <span id="headerTitle">WorkHud</span>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <select id="langSelect" style="background:#fff; color:#1976d2; border-radius:5px; border:1.5px solid #fff; font-size:1em; padding:3px 8px;">
+        <option value="sv">Svenska</option>
+        <option value="en">English</option>
+      </select>
+      <button id="meBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:6px 18px; font-size:1em; cursor:pointer;">Me</button>
+      <button id="createBtn" style="background:#ffd54f; border:2px solid #ffb300; border-radius:6px; padding:6px 18px; font-size:1em; cursor:pointer;">Create...</button>
+    </div>
+  </div>
+  <div id="meMenu" style="display:none; position:absolute; right:32px; top:56px; background:#fff; color:#1976d2; border:2px solid #1976d2; border-radius:8px; box-shadow:0 2px 8px #bbb; z-index:10; min-width:160px;">
+    <div style="padding:12px; cursor:pointer; border-bottom:1px solid #eee;" id="myGamesMenu">Mina spel</div>
+    <div style="padding:12px; cursor:pointer;" id="homeMenu">Home</div>
+  </div>
+  <div style="padding:32px;">
+    <h2 id="gamesTitle" style="font-family:'VT323', 'Press Start 2P', monospace; font-size:2.1em; color:#222; letter-spacing:1px; text-shadow:1px 1px 0 #fff, 2px 2px 0 #bbb;">Alla spel i världen</h2>
+    <input id="searchInput" type="text" placeholder="" style="font-family:'VT323', 'Press Start 2P', monospace; font-size:1.2em; padding:6px 14px; border:2px solid #ffb300; border-radius:6px; background:#e0e0e0; color:#222; margin-bottom:18px; width:320px; display:block;">
+    <div id="gamesList" style="margin-top:16px;"></div>
+  </div>
+  <script src="lang.js"></script>
+  <script>
+    // Språkhantering
+    const langStrings = window.workhudLangStrings;
+    let currentLang = localStorage.getItem('workhud_lang') || 'sv';
+    document.getElementById('langSelect').value = currentLang;
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('workhud_lang', lang);
+      document.getElementById('headerTitle').textContent = 'WorkHud';
+      document.getElementById('gamesTitle').textContent = langStrings[lang].allGames;
+      document.getElementById('meBtn').textContent = langStrings[lang].me;
+      document.getElementById('createBtn').textContent = langStrings[lang].create;
+      document.getElementById('myGamesMenu').textContent = langStrings[lang].menuMyGames;
+      document.getElementById('homeMenu').textContent = langStrings[lang].menuHome;
+      renderGames();
+    }
+    document.getElementById('langSelect').onchange = function() {
+      setLang(this.value);
+    };
+    // Me-meny
+    const meBtn = document.getElementById('meBtn');
+    const meMenu = document.getElementById('meMenu');
+    meBtn.onclick = function() {
+      meMenu.style.display = meMenu.style.display === 'none' ? 'block' : 'none';
+    };
+    document.getElementById('myGamesMenu').onclick = function() {
+      document.getElementById('gamesTitle').textContent = langStrings[currentLang].myGames;
+      renderGames(true);
+      meMenu.style.display = 'none';
+    };
+    document.getElementById('homeMenu').onclick = function() {
+      document.getElementById('gamesTitle').textContent = langStrings[currentLang].allGames;
+      renderGames();
+      meMenu.style.display = 'none';
+    };
+    document.body.onclick = function(e) {
+      if (!meMenu.contains(e.target) && e.target !== meBtn) {
+        meMenu.style.display = 'none';
+      }
+    };
+    // Visa alla spel eller bara mina spel
+    function renderGames(onlyMine) {
+      const gamesList = document.getElementById('gamesList');
+      const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      gamesList.innerHTML = '';
+      let found = false;
+      let myAuthor = localStorage.getItem('workhud_author') || '';
+      for (let key in localStorage) {
+        if (key.startsWith('workhud_game_')) {
+          const game = JSON.parse(localStorage.getItem(key));
+          if (onlyMine && game.author !== myAuthor) continue;
+          // Sökfunktion: filtrera på namn eller utvecklare
+          if (search && !(game.name.toLowerCase().includes(search) || (game.author||'').toLowerCase().includes(search))) continue;
+          found = true;
+          const div = document.createElement('div');
+          // Använd spelets bakgrundsfärg om den finns, annars standard
+          let bgColor = game.bgColor || '#ffe082';
+          div.style = `background:${bgColor}; border:2px solid #ffb300; border-radius:6px; padding:10px 18px; margin-bottom:10px; font-size:1.1em;`;
+          let btns = `<button style='margin-left:16px; background:#4caf50; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="viewer.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].test}</button>`;
+          if (game.author && myAuthor && game.author.trim().toLowerCase() === myAuthor.trim().toLowerCase()) {
+            btns += `<button style='margin-left:8px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:4px 12px; cursor:pointer;' onclick='window.location="index.html?game="+encodeURIComponent("${game.name}")'>${langStrings[currentLang].edit}</button>`;
+          }
+        
+          // Likes/dislikes/comments
+          const likeKey = 'workhud_likes_' + game.name;
+          const dislikeKey = 'workhud_dislikes_' + game.name;
+          const commentKey = 'workhud_comments_' + game.name;
+          let likes = parseInt(localStorage.getItem(likeKey) || '0');
+          let dislikes = parseInt(localStorage.getItem(dislikeKey) || '0');
+          let comments = JSON.parse(localStorage.getItem(commentKey) || '[]');
+          let userVoteKey = 'workhud_vote_' + game.name;
+          let userVote = localStorage.getItem(userVoteKey) || '';
+          let likeBar = `<span style='margin-left:18px;'>
+        <button onclick='addLike("${game.name}")' style='background:#fff; border:none; font-size:1.3em; cursor:pointer;${userVote==="up"?"opacity:0.5;":""}'>👍</button> <span id='like-count-${game.name}'>${likes}</span>
+        <button onclick='addDislike("${game.name}")' style='background:#fff; border:none; font-size:1.3em; cursor:pointer;${userVote==="down"?"opacity:0.5;":""}'>👎</button> <span id='dislike-count-${game.name}'>${dislikes}</span>
+      </span>`;
+          let commentBar = `<div style='margin-top:8px;'><input id='comment-input-${game.name}' type='text' placeholder='Add a comment...' style='width:180px; font-size:1em;'> <button onclick='addComment("${game.name}")' style='background:#1976d2; color:#fff; border:none; border-radius:4px; padding:2px 10px; font-size:1em; cursor:pointer;'>Send</button></div>`;
+          let commentList = comments.map(c => `<div style='margin-top:4px; background:#fffde7; border-radius:4px; padding:2px 8px; font-size:0.95em;'>${c}</div>`).join('');
+          div.innerHTML = `<b>${game.name}</b> <span style='font-size:0.9em;'>${langStrings[currentLang].by} ${game.author}</span> ${btns}<br>${likeBar}${commentBar}${commentList}`;
+          gamesList.appendChild(div);
+        }
+      }
+      if (!found) {
+        gamesList.innerHTML = `<i>${langStrings[currentLang].noGames}</i>`;
+      }
+    }
+    // Like/dislike/comment handlers
+    window.addLike = function(gameName) {
+      const likeKey = 'workhud_likes_' + gameName;
+      const dislikeKey = 'workhud_dislikes_' + gameName;
+      const voteKey = 'workhud_vote_' + gameName;
+      let likes = parseInt(localStorage.getItem(likeKey) || '0');
+      let dislikes = parseInt(localStorage.getItem(dislikeKey) || '0');
+      let vote = localStorage.getItem(voteKey);
+      if (vote === 'up') return; // Already liked
+      if (vote === 'down') { dislikes--; likes++; } else { likes++; }
+      localStorage.setItem(likeKey, likes);
+      localStorage.setItem(dislikeKey, dislikes);
+      localStorage.setItem(voteKey, 'up');
+      renderGames();
+    };
+    window.addDislike = function(gameName) {
+      const likeKey = 'workhud_likes_' + gameName;
+      const dislikeKey = 'workhud_dislikes_' + gameName;
+      const voteKey = 'workhud_vote_' + gameName;
+      let likes = parseInt(localStorage.getItem(likeKey) || '0');
+      let dislikes = parseInt(localStorage.getItem(dislikeKey) || '0');
+      let vote = localStorage.getItem(voteKey);
+      if (vote === 'down') return; // Already disliked
+      if (vote === 'up') { likes--; dislikes++; } else { dislikes++; }
+      localStorage.setItem(likeKey, likes);
+      localStorage.setItem(dislikeKey, dislikes);
+      localStorage.setItem(voteKey, 'down');
+      renderGames();
+    };
+    window.addComment = function(gameName) {
+      const key = 'workhud_comments_' + gameName;
+      let comments = JSON.parse(localStorage.getItem(key) || '[]');
+      const input = document.getElementById('comment-input-' + gameName);
+      if (input && input.value.trim()) {
+        comments.push(input.value.trim());
+        localStorage.setItem(key, JSON.stringify(comments));
+        input.value = '';
+        renderGames();
+      }
+    };
+    document.getElementById('createBtn').onclick = function() {
+      window.location = 'index.html';
+    };
+    document.getElementById('searchInput').oninput = function() { renderGames(); };
+    // Retro-stil på body och knappar
+  document.body.style.fontFamily = "'VT323', 'Press Start 2P', monospace";
+  document.body.style.background = '#f5f5dc';
+  document.querySelectorAll('button').forEach(btn => {
+    btn.style.fontFamily = "'VT323', 'Press Start 2P', monospace";
+    btn.style.letterSpacing = '1px';
+    btn.style.boxShadow = '2px 2px 0 #bbb';
+  });
+    // Reset all likes/dislikes once
+    if (!localStorage.getItem('workhud_likes_reset')) {
+      for (let key in localStorage) {
+        if (key.startsWith('workhud_likes_') || key.startsWith('workhud_dislikes_')) {
+          localStorage.setItem(key, '0');
+        }
+      }
+      localStorage.setItem('workhud_likes_reset', 'true');
+    }
+    setLang(currentLang);
+  </script>
+</body>
+</html>
